@@ -48,6 +48,17 @@ def get_args():
     return parser.parse_args()
 
 
+def set_environment_variables(args):
+    """
+    Set Azure Connection String as environment variable if it's provided via keyword arguments
+    rather than seeded as environment variables. This will override system defaults.
+    """
+
+    if args.connection_string:
+        os.environ['AZURE_STORAGE_CONNECTION_STRING'] = args.connection_string
+    return
+
+
 def extract_file_name_from_source_full_path(source_full_path):
     """
     Use the file name provided in the source_file_name variable. Should be run only
@@ -178,8 +189,9 @@ def download_azure_storage_blob_file(
 
 def main():
     args = get_args()
+    set_environment_variables(args)
+    connection_string = os.environ.get('AZURE_STORAGE_CONNECTION_STRING')
     container_name = args.container_name
-    connection_string = args.connection_string
     source_file_name = args.source_file_name
     source_folder_name = clean_folder_name(args.source_folder_name)
     source_full_path = combine_folder_and_file_name(
