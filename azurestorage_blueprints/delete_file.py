@@ -13,6 +13,7 @@ EXIT_CODE_NO_MATCHES_FOUND = 200
 EXIT_CODE_INVALID_FILE_PATH = 201
 EXIT_CODE_AZURE_DELETE_ERROR = 202
 
+
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(

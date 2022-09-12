@@ -1,1 +1,2 @@
 azure-storage-blob==12.3.2
+shipyard-utils==0.1.4
