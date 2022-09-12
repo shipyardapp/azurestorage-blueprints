@@ -1,11 +1,17 @@
 import os
 import sys
 import re
+import sys
 import argparse
 import shipyard_utils as shipyard
 from azure.storage.blob import BlobClient, ContainerClient
 from azure.core import exceptions
 
+
+EXIT_CODE_INCORRECT_CREDENTIALS = 3
+EXIT_CODE_NO_MATCHES_FOUND = 200
+EXIT_CODE_INVALID_FILE_PATH = 201
+EXIT_CODE_AZURE_DELETE_ERROR = 202
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -80,15 +86,21 @@ def delete_azure_storage_blob_file(
     """
     Delete Blob from Azure cloud storage
     """
-    blob = BlobClient.from_connection_string(
-        conn_str=connection_string,
-        container_name=container_name,
-        blob_name=file_name)
+    try:
+        blob = BlobClient.from_connection_string(
+            conn_str=connection_string,
+            container_name=container_name,
+            blob_name=file_name)
+    except:
+        print("Incorrect Credentials")
+        sys.exit(EXIT_CODE_INCORRECT_CREDENTIALS)
 
-    blob.delete_blob()
-    print(f'{container_name}/{file_name} delete function successfully ran')
-
-    return
+    try:
+        blob.delete_blob()
+        print(f'{container_name}/{file_name} delete function successfully ran')
+    except:
+        print(f"{file_name} delete failed to run")
+        sys.exit(EXIT_CODE_AZURE_DELETE_ERROR)
 
 
 def main():
@@ -109,11 +121,11 @@ def main():
             prefix=source_folder_name)
         matching_file_names = azure_find_matching_files(file_names,
                                                   re.compile(source_file_name))
-        print(f'{len(matching_file_names)} files found. Preparing to delete...')
         if len(matching_file_names) == 0:
             print("No file matches found")
-            sys.exit()
+            sys.exit(EXIT_CODE_NO_MATCHES_FOUND)
 
+        print(f'{len(matching_file_names)} files found. Preparing to delete...')
         for index, file_name in enumerate(matching_file_names):
             print(f'Deleting file {index+1} of {len(matching_file_names)}')
             delete_azure_storage_blob_file(
