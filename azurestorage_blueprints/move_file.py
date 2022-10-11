@@ -6,12 +6,10 @@ import sys
 import shipyard_utils as shipyard
 from azure.storage.blob import BlobServiceClient, ContainerClient
 from azure.core import exceptions
-
-
-EXIT_CODE_INCORRECT_CREDENTIALS = 3
-EXIT_CODE_NO_MATCHES_FOUND = 200
-EXIT_CODE_INVALID_FILE_PATH = 201
-EXIT_CODE_AZURE_MOVE_ERROR = 202
+try:
+    import exit_codes as ec
+except BaseException:
+    from . import exit_codes as ec
 
 
 def get_args():
@@ -101,7 +99,7 @@ def azure_move_blob(
                                              container_name=container_name)
     except:
         print("Incorrect credentials")
-        sys.exit(EXIT_CODE_INCORRECT_CREDENTIALS)
+        sys.exit(ec.EXIT_CODE_INCORRECT_CREDENTIALS)
     # get source blob url and copy to destination blob path
     source_blob = blob_client.get_blob_client(container_name, source_full_path)
     destination_blob = blob_client.get_blob_client(container_name, destination_full_path)
@@ -113,7 +111,7 @@ def azure_move_blob(
         # if copy failsm abort copy and return error message
         destination_blob.abort_copy(copy_status_data.id)
         print(f"Copy blob from {source_full_path} failed with status {copy_status_data.status}")
-        sys.exit(EXIT_CODE_AZURE_MOVE_ERROR)
+        sys.exit(ec.EXIT_CODE_AZURE_MOVE_ERROR)
     # successfully copied, so we delete the source path
     source_blob.delete_blob()
 
@@ -137,7 +135,7 @@ def main():
             file_names, re.compile(source_file_name))
         if len(matching_file_names) == 0:
             print(f"No files matching {source_file_name} found")
-            sys.exit(EXIT_CODE_NO_MATCHES_FOUND)
+            sys.exit(ec.EXIT_CODE_NO_MATCHES_FOUND)
         print(f'{len(matching_file_names)} files found. Preparing to move...')
         for index, key_name in enumerate(matching_file_names):
             destination_full_path = shipyard.files.combine_folder_and_file_name(destination_folder_name, key_name)

@@ -6,12 +6,10 @@ import argparse
 import shipyard_utils as shipyard
 from azure.storage.blob import BlobClient, ContainerClient
 from azure.core import exceptions
-
-
-EXIT_CODE_INCORRECT_CREDENTIALS = 3
-EXIT_CODE_NO_MATCHES_FOUND = 200
-EXIT_CODE_INVALID_FILE_PATH = 201
-EXIT_CODE_AZURE_DELETE_ERROR = 202
+try:
+    import exit_codes as ec
+except BaseException:
+    from . import exit_codes as ec
 
 
 def get_args():
@@ -56,7 +54,6 @@ def set_environment_variables(args):
     return
 
 
-
 def find_azure_storage_blob_file_names(conn_str, container_name, prefix=''):
     """
     Fetched all the files in the bucket which are returned in a list as
@@ -94,14 +91,14 @@ def delete_azure_storage_blob_file(
             blob_name=file_name)
     except:
         print("Incorrect Credentials")
-        sys.exit(EXIT_CODE_INCORRECT_CREDENTIALS)
+        sys.exit(ec.EXIT_CODE_INCORRECT_CREDENTIALS)
 
     try:
         blob.delete_blob()
         print(f'{container_name}/{file_name} delete function successfully ran')
     except:
         print(f"{file_name} delete failed to run")
-        sys.exit(EXIT_CODE_AZURE_DELETE_ERROR)
+        sys.exit(ec.EXIT_CODE_AZURE_DELETE_ERROR)
 
 
 def main():
@@ -124,7 +121,7 @@ def main():
                                                   re.compile(source_file_name))
         if len(matching_file_names) == 0:
             print("No file matches found")
-            sys.exit(EXIT_CODE_NO_MATCHES_FOUND)
+            sys.exit(ec.EXIT_CODE_NO_MATCHES_FOUND)
 
         print(f'{len(matching_file_names)} files found. Preparing to delete...')
         for index, file_name in enumerate(matching_file_names):
