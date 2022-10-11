@@ -57,7 +57,7 @@ def set_environment_variables(args):
 def find_azure_storage_blob_file_names(conn_str, container_name, prefix=''):
     """
     Fetched all the files in the bucket which are returned in a list as
-    Google Blob objects
+    Azure Blob objects
     """
     container = ContainerClient.from_connection_string(
         conn_str=conn_str, container_name=container_name)
