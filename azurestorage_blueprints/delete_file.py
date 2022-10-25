@@ -97,7 +97,7 @@ def delete_azure_storage_blob_file(
         blob.delete_blob()
         print(f'{container_name}/{file_name} delete function successfully ran')
     except:
-        print(f"{file_name} delete failed to run")
+        print(f"{file_name} delete failed to run. The file {file_name} could not be found. Ensure that the name of the file is correct")
         sys.exit(ec.EXIT_CODE_AZURE_DELETE_ERROR)
 
 
