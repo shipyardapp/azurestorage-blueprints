@@ -128,6 +128,7 @@ def main():
         source_folder_name, source_file_name)
     destination_folder_name = shipyard.files.clean_folder_name(args.destination_folder_name)
     source_file_name_match_type = args.source_file_name_match_type
+    destination_file_name = args.destination_file_name
 
     if source_file_name_match_type == 'regex_match':
         file_names = find_azure_storage_blob_file_names(connection_string, container_name, prefix=source_folder_name)
@@ -137,27 +138,37 @@ def main():
             print(f"No files matching {source_file_name} found")
             sys.exit(ec.EXIT_CODE_NO_MATCHES_FOUND)
         print(f'{len(matching_file_names)} files found. Preparing to move...')
-        for index, key_name in enumerate(matching_file_names):
-            destination_full_path = shipyard.files.combine_folder_and_file_name(destination_folder_name, key_name)
-            print(f'Moving file {index+1} of {len(matching_file_names)}')
+        for index, key_name in enumerate(matching_file_names,1):
+            dest_file_name = shipyard.files.determine_destination_file_name(source_full_path = key_name,destination_file_name = None)
+            destination_full_path = shipyard.files.determine_destination_full_path(
+                destination_folder_name = destination_folder_name,
+                destination_file_name = dest_file_name,
+                source_full_path = key_name,
+                file_number = index
+            )
+            # destination_full_path = shipyard.files.combine_folder_and_file_name(destination_folder_name, key_name)
+            print(f'Moving file {index} of {len(matching_file_names)}')
             azure_move_blob(
                 source_full_path=key_name,
                 destination_full_path=destination_full_path,
                 container_name=container_name,
                 connection_string=connection_string
             )
-
     else:
-        destination_full_path = shipyard.files.combine_folder_and_file_name(
-            destination_folder_name, args.destination_file_name
+        destination_full_path = shipyard.files.determine_destination_full_path(
+            destination_folder_name = destination_folder_name,
+            destination_file_name = destination_file_name,
+            source_full_path = source_full_path
         )
+        # destination_full_path = shipyard.files.combine_folder_and_file_name(
+        #     destination_folder_name, args.destination_file_name
+        # )
         azure_move_blob(
                 source_full_path=source_full_path,
                 destination_full_path=destination_full_path,
                 container_name=container_name,
                 connection_string=connection_string
         )
-
 
 
 if __name__ == '__main__':
