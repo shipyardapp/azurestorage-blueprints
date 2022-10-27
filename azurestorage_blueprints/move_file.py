@@ -153,9 +153,10 @@ def main():
                 connection_string=connection_string
             )
     else:
+        dest_file_name = shipyard.files.determine_destination_file_name(source_full_path= source_full_path, destination_file_name= destination_file_name)
         destination_full_path = shipyard.files.determine_destination_full_path(
             destination_folder_name = destination_folder_name,
-            destination_file_name = destination_file_name,
+            destination_file_name = dest_file_name,
             source_full_path = source_full_path
         )
         azure_move_blob(
