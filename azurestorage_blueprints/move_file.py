@@ -71,7 +71,6 @@ def find_azure_storage_blob_file_names(conn_str, container_name, prefix=''):
     container = ContainerClient.from_connection_string(
         conn_str=conn_str, container_name=container_name, delimiter = '/')
     blobs = list(container.list_blobs(prefix=prefix))
-    # return list(container.list_blobs(prefix=prefix))
     filtered = list(filter(lambda x: x.name.startswith(prefix),blobs))
     return filtered
         
@@ -143,7 +142,6 @@ def main():
             sys.exit(ec.EXIT_CODE_NO_MATCHES_FOUND)
         print(f'{len(matching_file_names)} files found. Preparing to move...')
         for index, key_name in enumerate(matching_file_names,1):
-            # dest_file_name = shipyard.files.determine_destination_file_name(source_full_path = key_name,destination_file_name = None)
             destination_full_path = shipyard.files.determine_destination_full_path(
                 destination_folder_name = destination_folder_name,
                 destination_file_name = destination_file_name,
