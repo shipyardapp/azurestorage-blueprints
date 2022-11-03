@@ -71,9 +71,8 @@ def find_azure_storage_blob_file_names(conn_str, container_name, prefix=''):
     container = ContainerClient.from_connection_string(
         conn_str=conn_str, container_name=container_name, delimiter = '/')
     blobs = list(container.list_blobs(prefix=prefix))
-    filtered = list(filter(lambda x: x.name.startswith(prefix),blobs))
+    filtered = list(map(lambda y: y.name,filter(lambda x: x.name.startswith(prefix),blobs)))
     return filtered
-        
 
 
 def find_matching_files(file_blobs, file_name_re):
@@ -82,8 +81,8 @@ def find_matching_files(file_blobs, file_name_re):
     """
     matching_file_names = []
     for blob in file_blobs:
-        if re.search(file_name_re, blob.name):
-            matching_file_names.append(blob.name)
+        if re.search(file_name_re, blob):
+            matching_file_names.append(blob)
 
     return matching_file_names
 
@@ -119,7 +118,6 @@ def azure_move_blob(
     source_blob.delete_blob()
 
 
-
 def main():
     args = get_args()
     set_environment_variables(args)
@@ -135,12 +133,11 @@ def main():
 
     if source_file_name_match_type == 'regex_match':
         file_names = find_azure_storage_blob_file_names(connection_string, container_name, prefix=source_folder_name)
-        matching_file_names = find_matching_files(
-            file_names, re.compile(source_file_name))
+        matching_file_names = shipyard.files.find_all_file_matches(file_names,re.compile(source_file_name))
         if len(matching_file_names) == 0:
             print(f"No files matching {source_file_name} found")
             sys.exit(ec.EXIT_CODE_NO_MATCHES_FOUND)
-        print(f'{len(matching_file_names)} files found. Preparing to move...')
+        print('Preparing to move...')
         for index, key_name in enumerate(matching_file_names,1):
             destination_full_path = shipyard.files.determine_destination_full_path(
                 destination_folder_name = destination_folder_name,
