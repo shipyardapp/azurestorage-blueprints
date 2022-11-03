@@ -115,6 +115,7 @@ def azure_move_blob(
         print(f"Copy blob from {source_full_path} failed with status {copy_status_data.status}")
         sys.exit(ec.EXIT_CODE_AZURE_MOVE_ERROR)
     # successfully copied, so we delete the source path
+    print(f"Successfully moved {source_blob.blob_name} to {destination_blob.blob_name}")
     source_blob.delete_blob()
 
 
