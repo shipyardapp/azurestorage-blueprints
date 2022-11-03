@@ -75,18 +75,6 @@ def find_azure_storage_blob_file_names(conn_str, container_name, prefix=''):
     return filtered
 
 
-def find_matching_files(file_blobs, file_name_re):
-    """
-    Return a list of all file_names that matched the regular expression.
-    """
-    matching_file_names = []
-    for blob in file_blobs:
-        if re.search(file_name_re, blob):
-            matching_file_names.append(blob)
-
-    return matching_file_names
-
-
 def azure_move_blob(
         connection_string,
         container_name,
